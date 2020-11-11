@@ -1,7 +1,6 @@
-import { isExtractableFile, extractFiles, ExtractableFile } from 'extract-files'
-import FormDataNode from 'form-data'
+import { isExtractableFile, extractFiles, ExtractableFile } from 'https://cdn.skypack.dev/extract-files?dts'
 
-import { Variables } from './types'
+import { Variables } from './types.ts'
 
 /**
  * Duck type if NodeJS stream
@@ -23,7 +22,7 @@ export default function createRequestBody(query: string, variables?: Variables):
     return JSON.stringify(clone)
   }
 
-  const Form = typeof FormData === 'undefined' ? FormDataNode : FormData
+  const Form = FormData
 
   const form = new Form()
 
@@ -31,7 +30,7 @@ export default function createRequestBody(query: string, variables?: Variables):
 
   const map: { [key: number]: string[] } = {}
   let i = 0
-  files.forEach((paths) => {
+  files.forEach((paths: string[]) => {
     map[++i] = paths
   })
   form.append('map', JSON.stringify(map))

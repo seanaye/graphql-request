@@ -1,55 +1,28 @@
-import crossFetch, * as CrossFetch from 'cross-fetch'
-import { print } from 'graphql/language/printer'
-import createRequestBody from './createRequestBody'
-import { ClientError, GraphQLError, RequestDocument, Variables } from './types'
-import * as Dom from './types.dom'
+import { print } from 'https://cdn.skypack.dev/graphql/language/printer?dts'
+import createRequestBody from './createRequestBody.ts'
+import { ClientError, GraphQLError, RequestDocument, Variables } from './types.ts'
 
-export { ClientError } from './types'
-
-/**
- * Convert the given headers configuration into a plain object.
- */
-const resolveHeaders = (headers: Dom.RequestInit['headers']): Record<string, string> => {
-  let oHeaders: Record<string, string> = {}
-  if (headers) {
-    if (
-      (typeof Headers !== 'undefined' && headers instanceof Headers) ||
-      headers instanceof CrossFetch.Headers
-    ) {
-      oHeaders = HeadersInstanceToPlainObject(headers)
-    } else if (Array.isArray(headers)) {
-      headers.forEach(([name, value]) => {
-        oHeaders[name] = value
-      })
-    } else {
-      oHeaders = headers as Record<string, string>
-    }
-  }
-
-  return oHeaders
-}
 
 /**
  * todo
  */
 export class GraphQLClient {
   private url: string
-  private options: Dom.RequestInit
+  private options: RequestInit
 
-  constructor(url: string, options?: Dom.RequestInit) {
+  constructor(url: string, options?: RequestInit) {
     this.url = url
-    this.options = options || {}
+    this.options = {}
   }
 
   async rawRequest<T = any, V = Variables>(
     query: string,
     variables?: V
-  ): Promise<{ data?: T; extensions?: any; headers: Dom.Headers; status: number; errors?: GraphQLError[] }> {
-    let { headers, fetch: localFetch = crossFetch, ...others } = this.options
+  ): Promise<{ data?: T; extensions?: any; headers: Headers; status: number; errors?: GraphQLError[] }> {
+    const { headers, ...others } = this.options
     const body = createRequestBody(query, variables)
-    headers = resolveHeaders(headers)
 
-    const response = await localFetch(this.url, {
+    const response = await fetch(this.url, {
       method: 'POST',
       headers: {
         ...(typeof body === 'string' ? { 'Content-Type': 'application/json' } : {}),
@@ -77,12 +50,11 @@ export class GraphQLClient {
    * Send a GraphQL document to the server.
    */
   async request<T = any, V = Variables>(document: RequestDocument, variables?: V): Promise<T> {
-    let { headers, fetch: localFetch = crossFetch, ...others } = this.options
-    headers = resolveHeaders(headers)
+    const { headers, ...others } = this.options
     const resolvedDoc = resolveRequestDocument(document)
     const body = createRequestBody(resolvedDoc, variables)
 
-    const response = await localFetch(this.url, {
+    const response = await fetch(this.url, {
       method: 'POST',
       headers: {
         ...(typeof body === 'string' ? { 'Content-Type': 'application/json' } : {}),
@@ -102,7 +74,7 @@ export class GraphQLClient {
     }
   }
 
-  setHeaders(headers: Dom.RequestInit['headers']): GraphQLClient {
+  setHeaders(headers: RequestInit['headers']): GraphQLClient {
     this.options.headers = headers
     return this
   }
@@ -115,7 +87,7 @@ export class GraphQLClient {
 
     if (headers) {
       // todo what if headers is in nested array form... ?
-      //@ts-ignore
+      //@ts-ignore 
       headers[key] = value
     } else {
       this.options.headers = { [key]: value }
@@ -132,7 +104,7 @@ export async function rawRequest<T = any, V = Variables>(
   url: string,
   query: string,
   variables?: V
-): Promise<{ data?: T; extensions?: any; headers: Dom.Headers; status: number; errors?: GraphQLError[] }> {
+): Promise<{ data?: T; extensions?: any; headers: Headers; status: number; errors?: GraphQLError[] }> {
   const client = new GraphQLClient(url)
   return client.rawRequest<T, V>(query, variables)
 }
@@ -185,7 +157,7 @@ export default request
 /**
  * todo
  */
-function getResult(response: Dom.Response): Promise<any> {
+function getResult(response: Response): Promise<any> {
   const contentType = response.headers.get('Content-Type')
   if (contentType && contentType.startsWith('application/json')) {
     return response.json()
@@ -222,15 +194,4 @@ export function gql(chunks: TemplateStringsArray, ...variables: any[]): string {
     (accumulator, chunk, index) => `${accumulator}${chunk}${index in variables ? variables[index] : ''}`,
     ''
   )
-}
-
-/**
- * Convert Headers instance into regular object
- */
-function HeadersInstanceToPlainObject(headers: Dom.Response['headers']): Record<string, string> {
-  const o: any = {}
-  headers.forEach((v, k) => {
-    o[k] = v
-  })
-  return o
 }
