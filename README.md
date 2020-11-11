@@ -1,5 +1,11 @@
 # graphql-request
 
+## Fork Info
+
+This fork intends to remove node.js cross fetch compatibility in favor of standard fetch. This allows the package to operate in both browser and Deno
+
+
+
 Minimal GraphQL client supporting Node and browsers for scripts or simple apps
 
 ![GitHub Action](https://github.com/prisma-labs/graphql-request/workflows/trunk/badge.svg) [![npm version](https://badge.fury.io/js/graphql-request.svg)](https://badge.fury.io/js/graphql-request)
