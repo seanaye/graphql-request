@@ -12,7 +12,7 @@ export class GraphQLClient {
 
   constructor(url: string, options?: RequestInit) {
     this.url = url
-    this.options = {}
+    this.options = options || {}
   }
 
   async rawRequest<T = any, V = Variables>(
