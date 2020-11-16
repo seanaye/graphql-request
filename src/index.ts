@@ -66,11 +66,9 @@ export class GraphQLClient {
     const result = await getResult(response)
 
     if (response.ok && !result.errors && result.data) {
-      console.log({ data: result.data })
       return result.data
     } else {
       const errorResult = typeof result === 'string' ? { error: result } : result
-      console.error({...errorResult, status: response.status }, { query: resolvedDoc, variables })
       throw new ClientError({ ...errorResult, status: response.status }, { query: resolvedDoc, variables })
     }
   }
