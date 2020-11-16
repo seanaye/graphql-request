@@ -22,7 +22,6 @@ export class GraphQLClient {
     const { headers, ...others } = this.options
     const body = createRequestBody(query, variables)
 
-    console.log({ HEADERS: headers })
     const response = await fetch(this.url, {
       method: 'POST',
       headers: {
@@ -54,8 +53,6 @@ export class GraphQLClient {
     const { headers, ...others } = this.options
     const resolvedDoc = resolveRequestDocument(document)
     const body = createRequestBody(resolvedDoc, variables)
-    console.log(this.options)
-    console.log({ HEADERS: headers })
     const response = await fetch(this.url, {
       method: 'POST',
       headers: {
