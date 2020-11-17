@@ -36,7 +36,7 @@ export default function createRequestBody(query: string, variables?: Variables):
   form.append('map', JSON.stringify(map))
 
   i = 0
-  files.forEach((paths, file) => {
+  files.forEach((paths: any, file: any) => {
     form.append(`${++i}`, file as any)
   })
 
